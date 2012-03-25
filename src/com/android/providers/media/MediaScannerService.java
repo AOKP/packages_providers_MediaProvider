@@ -54,6 +54,7 @@ public class MediaScannerService extends Service implements Runnable
     private volatile ServiceHandler mServiceHandler;
     private PowerManager.WakeLock mWakeLock;
     private String[] mExternalStoragePaths;
+    private boolean mTerminatedByException;
     
     private void openDatabase(String volumeName) {
         try {
@@ -130,6 +131,7 @@ public class MediaScannerService extends Service implements Runnable
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        mTerminatedByException = false;
         while (mServiceHandler == null) {
             synchronized (this) {
                 try {
@@ -148,7 +150,8 @@ public class MediaScannerService extends Service implements Runnable
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
         msg.obj = intent.getExtras();
-        mServiceHandler.sendMessage(msg);
+        // send delayed message to allow complete mounting of storage(s)
+        mServiceHandler.sendMessageDelayed(msg, 5000);
 
         // Try again later if we are killed before we can finish scanning.
         return Service.START_REDELIVER_INTENT;
@@ -158,7 +161,7 @@ public class MediaScannerService extends Service implements Runnable
     public void onDestroy()
     {
         // Make sure thread has started before telling it to quit.
-        while (mServiceLooper == null) {
+        while (mServiceLooper == null && !mTerminatedByException) {
             synchronized (this) {
                 try {
                     wait(100);
@@ -264,6 +267,7 @@ public class MediaScannerService extends Service implements Runnable
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Exception in handleMessage", e);
+                mTerminatedByException = true;
             }
 
             stopSelf(msg.arg1);
