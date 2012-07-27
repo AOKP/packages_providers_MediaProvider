@@ -1,0 +1,10 @@
+Change-Id: I960d37e6e28910ceda4332d10d9f8f55a7253e5c
+Code-Review+1: Will DeBerry <hillbillyhacker86@gmail.com>
+Code-Review+1: Gergely Szell (sethyx) <sethyx@gmail.com>
+Code-Review+2: Jacob Bell <fzservers@gmail.com>
+Verified+1: Jacob Bell <fzservers@gmail.com>
+Submitted-by: Jacob Bell <fzservers@gmail.com>
+Submitted-at: Thu, 26 Jul 2012 20:35:23 -0400
+Reviewed-on: http://gerrit.sudoservers.com/1746
+Project: AOKP/packages_providers_MediaProvider
+Branch: refs/heads/jb
