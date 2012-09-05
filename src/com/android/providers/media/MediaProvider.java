@@ -3023,6 +3023,11 @@ public class MediaProvider extends ContentProvider {
                 if (file.exists()) {
                     values.put(FileColumns.DATE_MODIFIED, file.lastModified() / 1000);
                     values.put(FileColumns.SIZE, file.length());
+                    // make sure date taken time is set
+                    if (mediaType == FileColumns.MEDIA_TYPE_IMAGE
+                            || mediaType == FileColumns.MEDIA_TYPE_VIDEO) {
+                        computeTakenTime(values);
+                    }
                 }
             }
 
