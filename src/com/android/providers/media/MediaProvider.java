@@ -128,11 +128,14 @@ public class MediaProvider extends ContentProvider {
     private static final String sExternalPath;
     /** Resolved canonical path to cache storage. */
     private static final String sCachePath;
+    /** Resolved canonical path to legacy storage. */
+    private static final String sLegacyPath;
 
     static {
         try {
             sExternalPath = Environment.getExternalStorageDirectory().getCanonicalPath();
             sCachePath = Environment.getDownloadCacheDirectory().getCanonicalPath();
+            sLegacyPath = Environment.getLegacyExternalStorageDirectory().getCanonicalPath();
         } catch (IOException e) {
             throw new RuntimeException("Unable to resolve canonical paths", e);
         }
@@ -4633,12 +4636,13 @@ public class MediaProvider extends ContentProvider {
             throw new IllegalArgumentException("Unable to resolve canonical path for " + file, e);
         }
 
-        if (path.startsWith(sExternalPath)) {
-            Context c = getContext();
-            if (c.checkCallingOrSelfUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                c.enforceCallingOrSelfPermission(
-                        READ_EXTERNAL_STORAGE, "External path: " + path);
+        if (path.startsWith(sExternalPath) || path.startsWith(sLegacyPath)) {
+            getContext().enforceCallingOrSelfPermission(
+                    READ_EXTERNAL_STORAGE, "External path: " + path);
+
+            if (isWrite) {
+                getContext().enforceCallingOrSelfPermission(
+                        WRITE_EXTERNAL_STORAGE, "External path: " + path);
             }
 
             if (isWrite) {
